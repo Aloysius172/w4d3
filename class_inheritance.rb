@@ -1,5 +1,8 @@
 class Employee
 
+    attr_reader :name, :boss, :salary, :title
+    attr_writer :boss
+
     def initialize(name, title, salary, boss=nil)
         @name = name
         @title = title
@@ -9,13 +12,6 @@ class Employee
         self.boss.employees << self unless self.boss.nil?
     end
 
-    attr_reader :boss, :salary
-
-    def boss=(boss)
-        return self.boss.name if self.boss == boss
-
-        # if self.boss
-    end
 
     def bonus(multiplier)
         self.salary * multiplier
@@ -31,23 +27,31 @@ class Manager < Employee
         @employees = []
     end
 
-    # def add_employees(employee)
-    #     if employee.boss == self
-    #         self.employees << employee
-    #     end
-    # end
+    def add_employees(employee)
+            self.employees << employee
+    end
     
     def bonus(multiplier)
         total = 0
 
-        if self.is_a?(Manager)
-            self.employees.each do |employee| 
-                if employee.is_a?(Manager)
-                    total +=  employee.salary
-                    employee.employees.each { |sub_employee| total += sub_employee.salary }
-                else
-                    total += employee.salary
-                end
+        # if self.is_a?(Manager)
+        #     self.employees.each do |employee| 
+        #         if employee.is_a?(Manager)
+        #             total +=  employee.salary
+        #             employee.employees.each { |sub_employee| total += sub_employee.salary }
+        #         else
+        #             total += employee.salary
+        #         end
+        #     end
+        # end
+
+        queue = [self.employees]
+
+        until queue.empty?
+            employee_listing = queue.shift
+            employee_listing.each do |employee| 
+                total += employee.salary
+                queue.push(employee.employees) if employee.is_a?(Manager)
             end
         end
 
@@ -55,7 +59,6 @@ class Manager < Employee
 
     end
     
-
 end
 
 ned = Manager.new("Ned", "Founder", 1000000, nil)
@@ -68,6 +71,6 @@ david = Employee.new("David", "TA", 10000, darren)
 # p shawna
 # p david
 
-# p ned.bonus(5) # => 500_000
+p ned.bonus(5) # => 500_000
 p darren.bonus(4) # => 88_000
 p david.bonus(3) # => 30_000
